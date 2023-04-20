@@ -2,7 +2,7 @@ function [rawim, XYZ2Cam, wbcoeffs] = readdng(filename)
 
     % Turn off LibTiff warnings
     warning('off','all');
-    warning;
+    %warning;
 
     % Read the RAW image
     t = Tiff(filename, 'r');

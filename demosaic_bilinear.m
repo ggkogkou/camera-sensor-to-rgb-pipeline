@@ -3,6 +3,8 @@ function [rgbim] = demosaic_bilinear(rawim, bayertype)
     % Perform demosaicing to the MxN raw image
     % Bayer CFA model is used
     %
+    % @see https://wiki.apertus.org/index.php/OpenCine.Nearest_Neighbor_and_Bilinear_Interpolation
+    %
     % @param rawim is the RAW formatted image
     % @param bayertype is the Bayer pattern of CFA
     %
@@ -11,26 +13,28 @@ function [rgbim] = demosaic_bilinear(rawim, bayertype)
     M = size(rawim, 1);
     N = size(rawim, 2);
     
-    % RGGB pattern
+    % Create masks to divide the RAW image into three channels R,G,B
+    % --------------------------------------------------------------
+    % RGGB pattern mask
     if bayertype == "rggb"
-        red = repmat([1 0; 0 0], M/2, N/2);
-        green = repmat([0 1; 1 0], M/2, N/2);
-        blue = repmat([0 0; 0 1], M/2, N/2);
-    % BGGR pattern
+        red_mask = repmat([1 0; 0 0], M/2, N/2);
+        green_mask = repmat([0 1; 1 0], M/2, N/2);
+        blue_mask = repmat([0 0; 0 1], M/2, N/2);
+    % BGGR pattern mask
     elseif bayertype == "bggr"
-        red = repmat([0 0; 0 1], M/2, N/2);
-        green = repmat([0 1; 1 0], M/2, N/2);
-        blue = repmat([1 0; 0 0], M/2, N/2);
-    % GBRG pattern
+        red_mask = repmat([0 0; 0 1], M/2, N/2);
+        green_mask = repmat([0 1; 1 0], M/2, N/2);
+        blue_mask = repmat([1 0; 0 0], M/2, N/2);
+    % GBRG pattern mask
     elseif bayertype == "gbrg"
-        red = repmat([0 0; 1 0], M/2, N/2);
-        green = repmat([1 0; 0 1], M/2, N/2);
-        blue = repmat([0 1; 0 0], M/2, N/2);
-    % GRBG pattern
+        red_mask = repmat([0 0; 1 0], M/2, N/2);
+        green_mask = repmat([1 0; 0 1], M/2, N/2);
+        blue_mask = repmat([0 1; 0 0], M/2, N/2);
+    % GRBG pattern mask
     elseif bayertype == "grbg"
-        red = repmat([0 1; 0 0], M/2, N/2);
-        green = repmat([1 0; 0 1], M/2, N/2);
-        blue = repmat([0 0; 1 0], M/2, N/2);
+        red_mask = repmat([0 1; 0 0], M/2, N/2);
+        green_mask = repmat([1 0; 0 1], M/2, N/2);
+        blue_mask = repmat([0 0; 1 0], M/2, N/2);
     % Invalid pattern 
     else
         fprintf("Invalid CFA pattern. Aborting...\n");
@@ -41,48 +45,42 @@ function [rgbim] = demosaic_bilinear(rawim, bayertype)
     % Mask the RAW image and produce three separate R, G, B layers.
     % After that, apply interpolation to assign values to the missing
     % pixels.
-    red_layer = rawim .* red;
-    green_layer = rawim .* green;
-    blue_layer = rawim .* blue;
+    red_layer = rawim .* red_mask;
+    green_layer = rawim .* green_mask;
+    blue_layer = rawim .* blue_mask;
 
-    % Interpolation for the green at the missing points
+    % Perform Demosaicing by Interpolating the Missing R,G,B Pixels
     for i=1 : M
         for j=1 : N
-
-            % Check for GREEN missing corner pixels for all CFA petterns
+            % Interpolate the GREEN missing corner pixels for all CFA petterns
             % ----------------------
             % RGGB and BGGR patterns
-            if i == 1 && j == 1 && green_layer(i, j) == 0
-                green_layer(i, j) = 0.5*(green_layer(i+1, j)+green_layer(i, j+1));
-                continue;
-            elseif i == M && j == N && green_layer(i, j) == 0
-                green_layer(i, j) = 0.5*(green_layer(i-1, j)+green_layer(i, j-1));
-                continue;
-            
+            if bayertype == "rggb" || bayertype == "bggr"
+                if i == 1 && j == 1
+                    green_layer(i, j) = 0.5*(green_layer(i+1, j)+green_layer(i, j+1));
+                elseif i == M && j == N
+                    green_layer(i, j) = 0.5*(green_layer(i-1, j)+green_layer(i, j-1));
+                end
             % GRBG and GBRG patterns
-            elseif i == 1 && j == N && green_layer(i, j) == 0
-                green_layer(i, j) = 0.5*(green_layer(i+1, j)+green_layer(i, j-1));
-                continue;
-            elseif i == M && j == 1 && green_layer(i, j) == 0
-                green_layer(i, j) = 0.5*(green_layer(i-1, j)+green_layer(i, j+1));
-                continue;
+            elseif bayertype == "grbg" || bayertype == "gbrg"
+                if i == 1 && j == N
+                    green_layer(i, j) = 0.5*(green_layer(i+1, j)+green_layer(i, j-1));
+                elseif i == M && j == 1
+                    green_layer(i, j) = 0.5*(green_layer(i-1, j)+green_layer(i, j+1));
+                end
             end
 
-            % Check for GREEN missing border pixels
-            % ----------------------------------
+            % Interpolate the GREEN missing border pixels
+            % -------------------------------------------
             % RGGB, BGGR, GRBG and GBRG patterns
             if j == 1 && green_layer(i, j) == 0
                 green_layer(i, j) = (green_layer(i+1, j)+green_layer(i-1, j)+green_layer(i, j+1))/3;
-                continue;
             elseif j == N && green_layer(i, j) == 0
                 green_layer(i, j) = (green_layer(i+1, j)+green_layer(i-1, j)+green_layer(i, j-1))/3;
-                continue;
             elseif i == 1 && green_layer(i, j) == 0
                 green_layer(i, j) = (green_layer(i+1, j)+green_layer(i, j-1)+green_layer(i, j+1))/3;
-                continue;
             elseif i == M && green_layer(i, j) == 0
                 green_layer(i, j) = (green_layer(i-1, j)+green_layer(i, j-1)+green_layer(i, j+1))/3;
-                continue;
             end
 
             % Fill the rest of the inside missing GREEN pixels
@@ -171,8 +169,83 @@ function [rgbim] = demosaic_bilinear(rawim, bayertype)
                 end
             end
 
-            
-            
+            % Interpolate both RED and BLUE missing pixels for all CFA petterns
+            %
+            % ----------------------
+            % GRBG pattern (+ GBRG)
+            %
+            % The following if-statement impelents GRBG.
+            %
+            % For the GBRG pattern we just interchange red_layer and blue_layer
+            if bayertype == "grbg" || bayertype == "gbrg" 
+                
+                % Horizontal RED and BLUE Interpolation
+                if mod(i, 2) == 1 && mod(j, 2) == 1
+                    % Inside columns pixels
+                    if i == 1 && j == 1
+                        red_layer(i, j) = red_layer(i, j+1);
+                        blue_layer(i, j) = blue_layer(i+1, j);
+                    elseif i == 1
+                        red_layer(i, j) = (red_layer(i, j-1)+red_layer(i, j+1))/2;
+                        blue_layer(i, j) = blue_layer(i+1, j);
+                    % Last column pixels: copy the value of the nearest pixel
+                    elseif j == 1
+                        red_layer(i, j) = red_layer(i, j+1);
+                        blue_layer(i, j) = (blue_layer(i+1, j)+blue_layer(i-1, j))/2;
+                    elseif i < M && j < N
+                        red_layer(i, j) = (red_layer(i, j-1)+red_layer(i, j+1))/2;
+                        blue_layer(i, j) = (blue_layer(i+1, j)+blue_layer(i-1, j))/2;
+                    end
+
+                % Vertical RED and BLUE Interpolation
+                elseif mod(i, 2) == 0 && mod(j, 2) == 0
+                    % Inside rows pixels
+                    if i < M && j == N
+                        red_layer(i, j) = (red_layer(i-1, j)+red_layer(i+1, j))/2;
+                        blue_layer(i, j) = blue_layer(i, j-1);
+                    elseif i < M
+                        red_layer(i, j) = (red_layer(i-1, j)+red_layer(i+1, j))/2;
+                        blue_layer(i, j) = (blue_layer(i, j+1)+blue_layer(i, j-1))/2;
+                    % Last row pixels: copy the value of the nearest pixel
+                    elseif i == M && j == N
+                        red_layer(i, j) = red_layer(i-1, j);
+                        blue_layer(i, j) = blue_layer(i, j-1);
+                    elseif i == M
+                        red_layer(i, j) = red_layer(i-1, j);
+                        blue_layer(i, j) = (blue_layer(i, j+1)+blue_layer(i, j-1))/2;
+                    end
+
+                % Diagonal Interpolation for RED
+                elseif mod(i, 2) == 0 && mod(j, 2) == 1
+                    % Inside columns pixels
+                    if i < M && j == 1
+                        red_layer(i, j) = (red_layer(i-1, j+1)+red_layer(i+1, j+1))/2;
+                    elseif i == M && j == 1
+                        red_layer(i, j) = red_layer(i-1, j+1);
+                    elseif i == M
+                        red_layer(i, j) = (red_layer(i-1, j-1)+red_layer(i-1, j+1))/2;
+                    elseif i < M && j < N
+                        red_layer(i, j) = (red_layer(i-1, j-1)+...
+                            red_layer(i+1, j+1)+red_layer(i-1, j+1)+...
+                            red_layer(i+1, j-1))/4;
+                    end
+
+                % Diagonal Interpolation for BLUE
+                elseif mod(i, 2) == 1 && mod(j, 2) == 0
+                    % Inside columns pixels
+                    if i == 1 && j < N
+                        blue_layer(i, j) = (blue_layer(i+1, j+1)+blue_layer(i+1, j-1))/2;
+                    elseif i == 1
+                        blue_layer(i, j) = blue_layer(i+1, j-1);
+                    elseif j == N
+                        blue_layer(i, j) = (blue_layer(i-1, j-1)+blue_layer(i+1, j-1))/2;
+                    elseif i < M && j < N
+                        blue_layer(i, j) = (blue_layer(i-1, j-1)+...
+                            blue_layer(i+1, j+1)+blue_layer(i-1, j+1)+...
+                            blue_layer(i+1, j-1))/4;                      
+                    end
+                end
+            end
 
         end
     end

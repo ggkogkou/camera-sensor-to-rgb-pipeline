@@ -60,7 +60,7 @@ function [Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayert
     % The truecolor image is in linear camera space.
     %rawim = im2uint16(rawim);
     %rawim = demosaic(rawim, 'rggb');
-    rawim = demosaic(rawim, bayertype);
+    rawim = demosaic_bilinear(rawim, bayertype);
 
     % Convert from Camera Color Space to RGB Color Space
     % -----------------------------------------------------------------
