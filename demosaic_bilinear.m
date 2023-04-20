@@ -1,4 +1,4 @@
-function [rgbim] = demosaic(rawim, bayertype)
+function [rgbim] = demosaic_bilinear(rawim, bayertype)
 
     % Perform demosaicing to the MxN raw image
     % Bayer CFA model is used
