@@ -9,10 +9,10 @@ function [rgbim] = demosaic_bilinear(rawim, bayertype)
     % @param bayertype is the Bayer pattern of CFA
     %
     % @return rgb is the MxNx3 RGB image
-            
+
     M = size(rawim, 1);
     N = size(rawim, 2);
-    
+
     % Create masks to divide the RAW image into three channels R,G,B
     % --------------------------------------------------------------
     % RGGB pattern mask
@@ -265,3 +265,5 @@ function [rgbim] = demosaic_bilinear(rawim, bayertype)
     end
 
 end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END OF FILE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
