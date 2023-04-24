@@ -178,7 +178,7 @@ function [rgbim] = demosaic_bilinear(rawim, bayertype)
             %
             % For the GBRG pattern we just interchange red_layer and blue_layer
             if bayertype == "grbg" || bayertype == "gbrg" 
-                
+
                 % Horizontal RED and BLUE Interpolation
                 if mod(i, 2) == 1 && mod(j, 2) == 1
                     % Inside columns pixels
