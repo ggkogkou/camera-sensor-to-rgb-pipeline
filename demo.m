@@ -32,7 +32,7 @@ fig_num = 1;
 current_project = pwd;
 
 % Select ehat task to be executed
-task_num = 4;
+task_num = 2;
 
 % TASK 1: ORIGINAL IMAGE
 if task_num == 1
@@ -40,40 +40,40 @@ if task_num == 1
     N = size(rawim, 2);
 % TASK 2: SHRINK IMAGE
 elseif task_num == 2
-    M = 400;
-    N = 400;
+    M = 250;
+    N = 280;
 % TASK 3: UPSCALE IMAGE
 elseif task_num == 3
     M = size(rawim, 1) + 500;
-    N = size(rawim, 2) + 200;
+    N = size(rawim, 2) + 500;
 % TASK 4: BOTH
 elseif task_num == 4
     M = size(rawim, 1) + 400; % increase height
-    N = size(rawim, 2) - 1000; % decrease width
+    N = size(rawim, 2) - 2000; % decrease width
 end
 
 [Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayertype, method, M, N);
 
 % Plot Results
 figure(fig_num)
-fig_num = fig_num + 1;
 imshow(Ccam)
 title("Linear Camera Image")
+fig_num = fig_num + 1;
 
 figure(fig_num)
-fig_num = fig_num + 1;
 imshow(Cxyz)
 title("CIE XYZ Image")
+fig_num = fig_num + 1;
 
 figure(fig_num)
-fig_num = fig_num + 1;
 imshow(Clinear)
 title("Linear RGB Image")
+fig_num = fig_num + 1;
 
 figure(fig_num)
-fig_num = fig_num + 1;
 imshow(Csrgb)
 title("sRGB Image")
+fig_num = fig_num + 1;
 
 figure(fig_num)
 
@@ -94,10 +94,10 @@ imhist(Csrgb)
 title('Subplot 4: sRGB Histogram')
 
 % Save all plots
-current_path = pwd;
-for i=1 : fig_num
-    file_destination = strcat(current_path, '/plots/', string(method), '_task_', string(task_num), '_gig_num_', string(i), '.png');
-    saveas(figure(i), file_destination);
-end
+%current_path = pwd;
+%for i=1 : fig_num
+%    file_destination = strcat(current_path, '/plots/', string(method), '_task_', string(task_num), '_fig_num_', string(i), '.png');
+%    saveas(figure(i), file_destination);
+%end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END OF FILE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

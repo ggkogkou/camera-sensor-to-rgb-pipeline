@@ -45,9 +45,15 @@ function [rgbim] = demosaic_bilinear(rawim, bayertype)
     % Mask the RAW image and produce three separate R, G, B layers.
     % After that, apply interpolation to assign values to the missing
     % pixels.
-    red_layer = rawim .* red_mask;
-    green_layer = rawim .* green_mask;
-    blue_layer = rawim .* blue_mask;
+    if bayertype == "rggb" || bayertype == "grbg"
+        red_layer = rawim .* red_mask;
+        green_layer = rawim .* green_mask;
+        blue_layer = rawim .* blue_mask;
+    elseif bayertype == "bggr" || bayertype == "gbrg"
+        red_layer = rawim .* blue_mask;
+        green_layer = rawim .* green_mask;
+        blue_layer = rawim .* red_mask;
+    end
 
     % Perform Demosaicing by Interpolating the Missing R,G,B Pixels
     for i=1 : M
@@ -97,7 +103,7 @@ function [rgbim] = demosaic_bilinear(rawim, bayertype)
             %
             % For the BGGR pattern we just interchange red_layer and blue_layer
             if bayertype == "rggb" || bayertype == "bggr" 
-                
+
                 % Horizontal RED and BLUE Interpolation
                 if mod(i, 2) == 1 && mod(j, 2) == 0
                     % Inside columns pixels

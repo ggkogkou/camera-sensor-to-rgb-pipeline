@@ -30,46 +30,46 @@ function [res_img] = resize_bilinear(img, M, N)
     for i=1 : M
         for j=1 : N
             % Kep track of the pixels of the initial image
-            i_init = i * height_scale;
-            j_init = j * width_scale;
+            i_original = i * height_scale;
+            j_original = j * width_scale;
 
             % Calculate the coordinates of neighbouring 4 pixels
             % Make sure not to go out of borders
-            i_init_previous = floor(i_init); j_init_previous = floor(j_init);
-            i_init_next = min(M0, ceil(i_init)); j_init_next = min(N0, ceil(j_init));
+            i_original_previous = ceil(i_original); j_original_previous = ceil(j_original);
+            i_original_next = min(M0, ceil(i_original)+1); j_original_next = min(N0, ceil(j_original)+1);
 
             % Interpolate the missing pixels after sampling
             % Store the new R,G,B LAYERS in res_img variable
             % ---------------------------------------------
             % Check if pixel of initial image matches pixel of resized
-            if i_init_next == i_init_previous && j_init_next == j_init_previous
-                res_img(i, j, :) = img(i_init_previous, j_init_previous, :);
+            if i_original_next == i_original_previous && j_original_next == j_original_previous
+                res_img(i, j, :) = img(i_original_previous, j_original_previous, :);
             % Check if the pixels are integer multiplier of the ratio
-            elseif i_init_next == i_init_previous
-                weight_1 = img(i_init_previous, j_init_previous, :);
-				weight_2 = img(i_init_previous, j_init_next, :);
+            elseif i_original_next == i_original_previous
+                weight_1 = img(i_original_previous, j_original_previous, :);
+				weight_2 = img(i_original_previous, j_original_next, :);
 
                 % Assign the new resized rgb layers
-				res_img(i, j, :) = weight_1*(j_init_next-j_init) + weight_2*(j_init-j_init_previous);
-            elseif j_init_next == j_init_previous
-                weight_1 = img(i_init_previous, j_init_previous, :);
-				weight_2 = img(i_init_next, j_init_previous, :);
+				res_img(i, j, :) = weight_1*(j_original_next-j_original) + weight_2*(j_original-j_original_previous);
+            elseif j_original_next == j_original_previous
+                weight_1 = img(i_original_previous, j_original_previous, :);
+				weight_2 = img(i_original_next, j_original_previous, :);
 
                 % Assign the new resized rgb layers
-				res_img(i, j, :) = (weight_1*(i_init_next-i_init)) + (weight_2*(i_init-i_init_previous));
+				res_img(i, j, :) = (weight_1*(i_original_next-i_original)) + (weight_2*(i_original-i_original_previous));
 
             % Interpolate the rest of the inside pixels
             else
-                up_left = img(i_init_previous, j_init_previous, :);
-				down_left = img(i_init_next, j_init_previous, :);
-				up_right = img(i_init_previous, j_init_next, :);
-				down_right = img(i_init_next, j_init_next, :);
+                up_left = img(i_original_previous, j_original_previous, :);
+				down_left = img(i_original_next, j_original_previous, :);
+				up_right = img(i_original_previous, j_original_next, :);
+				down_right = img(i_original_next, j_original_next, :);
   
-                weight_1 = up_left * (i_init_next-i_init) + down_left*(i_init-i_init_previous);
-				weight_2 = up_right * (i_init_next-i_init) + down_right*(i_init-i_init_previous);
+                weight_1 = up_left * (i_original_next-i_original) + down_left*(i_original-i_original_previous);
+				weight_2 = up_right * (i_original_next-i_original) + down_right*(i_original-i_original_previous);
 
                 % Assign the new resized rgb layers
-				res_img(i, j, :) = weight_1 * (j_init_next-j_init) + weight_2*(j_init-j_init_previous);
+				res_img(i, j, :) = weight_1 * (j_original_next-j_original) + weight_2*(j_original-j_original_previous);
             end
             
         end
