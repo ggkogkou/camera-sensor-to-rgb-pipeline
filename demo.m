@@ -32,7 +32,7 @@ fig_num = 1;
 current_project = pwd;
 
 % Select ehat task to be executed
-task_num = 1;
+task_num = 4;
 
 % TASK 1: ORIGINAL IMAGE
 if task_num == 1
@@ -79,15 +79,15 @@ figure(fig_num)
 
 subplot(2,2,1)
 imhist(Ccam)
-title('Subplot 1: Linear Camera Image Histogram')
+title('Subplot 1: Linear Camera Histogram')
 
 subplot(2,2,2)
 imhist(Cxyz)
-title('Subplot 2: CIE XYZ Image Histogram')
+title('Subplot 2: CIE XYZ Histogram')
 
 subplot(2,2,3)
 imhist(Clinear)
-title('Subplot 3: Linear RGB Image Histogram')
+title('Subplot 3: Linear RGB Histogram')
 
 subplot(2,2,4)
 imhist(Csrgb)
@@ -96,8 +96,8 @@ title('Subplot 4: sRGB Histogram')
 % Save all plots
 current_path = pwd;
 for i=1 : fig_num
-    file_dest = strcat(current_path, '/plots/task_', task_num, '_gig_num_', fig_num, '.png');
-    saveas(figure(figure_count), file_dest);
+    file_destination = strcat(current_path, '/plots/', string(method), '_task_', string(task_num), '_gig_num_', string(i), '.png');
+    saveas(figure(i), file_destination);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END OF FILE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
