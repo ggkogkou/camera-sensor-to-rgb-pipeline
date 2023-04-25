@@ -59,6 +59,7 @@ function [Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayert
     % Convert the Bayer-encoded CFA image into a truecolor image by demosaicing. 
     % The truecolor image is in linear camera space.
     % -----------------------------------------------------------------
+    fprintf("Demosaicing...\n");
     if method == "nearest"
         demosaiced_image = demosaic_nearest_neighbor(rawim, bayertype);
     elseif method == "bilinear"
@@ -73,7 +74,11 @@ function [Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayert
     % -----------------------------------------------------------------
     % Resize the demosaiced image to the given M, N inputs. 
     % -----------------------------------------------------------------
-    if method == "nearest"
+    fprintf("Resizing...\n");
+    if M == M0 && N == N0
+        % Continue -- no resizing needed
+        fprintf("No Resizing Needed...\n\n");
+    elseif method == "nearest"
         demosaiced_image = resize_nearest_neighbor(demosaiced_image, M, N);
     elseif method == "bilinear"
         demosaiced_image = resize_bilinear(demosaiced_image, M, N);
@@ -85,6 +90,7 @@ function [Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayert
 
     % Convert from linear Camera Color Space to linear RGB Color Space
     % -----------------------------------------------------------------
+    fprintf("Color Space Conversion...\n\n");
     % CIE standard T_{xyz->rgb}
     XYZ2rgb = [3.2404542, -1.5371385, -0.4985314;
                -0.9692660, 1.8760108, 0.0415560;
@@ -124,7 +130,8 @@ function [Csrgb, Clinear, Cxyz, Ccam] = dng2rgb(rawim, XYZ2Cam, wbcoeffs, bayert
     Ccam = demosaiced_image;
     Clinear = linear_rgb;
 
-    imshow(Csrgb);
+    %imshow(Csrgb);
+    fprintf("DNG to sRGB Completed...\n\n");
 
 end
 

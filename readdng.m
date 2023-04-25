@@ -4,6 +4,8 @@ function [rawim, XYZ2Cam, wbcoeffs] = readdng(filename)
     warning('off','all');
     %warning;
 
+    fprintf("Reading DNG Image...\n");
+
     % Read the RAW image
     t = Tiff(filename, 'r');
     offsets = getTag(t, 'SubIFD');
@@ -52,6 +54,9 @@ function [rawim, XYZ2Cam, wbcoeffs] = readdng(filename)
     % Get digital camera's color space matrix
     XYZ2Cam = meta_info.ColorMatrix2;
     XYZ2Cam = transpose(reshape(XYZ2Cam ,3 ,3));
+
+    % Print a message
+    fprintf("DNG Image was Read Successfully...\n\n");
 
 end
 

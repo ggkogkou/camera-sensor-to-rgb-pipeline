@@ -43,6 +43,9 @@ function [res_img] = resize_nearest_neighbor(img, M, N)
         end
     end
 
+    % Print a message
+    fprintf("Image was Resized Successfully...\n\n");
+
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END OF FILE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

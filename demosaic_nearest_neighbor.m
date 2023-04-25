@@ -111,6 +111,9 @@ function [rgbim] = demosaic_nearest_neighbor(rawim, bayertype)
         rgbim(:,:,3) = red_layer;
     end
 
+    % Print a message
+    fprintf("Bayer Encoded Image was Demosaiced Successfully\n\n");
+
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% END OF FILE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
