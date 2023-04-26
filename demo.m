@@ -14,8 +14,8 @@ filename = 'RawImage.tiff';
 [rawim, XYZ2Cam, wbcoeffs] = readdng(filename);
 
 % Specify Interpolation Method to be Performed -- Comment/Uncomment
-%method = "nearest";
-method = "bilinear";
+method = "nearest";
+%method = "bilinear";
 
 % Specify Bayer CFA Type -- Comment/Uncomment
 bayertype = "rggb";
@@ -32,7 +32,7 @@ fig_num = 1;
 current_project = pwd;
 
 % Select ehat task to be executed
-task_num = 2;
+task_num = 4;
 
 % TASK 1: ORIGINAL IMAGE
 if task_num == 1
